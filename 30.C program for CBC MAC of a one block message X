@@ -1,0 +1,62 @@
+#include <stdio.h>
+
+// Dummy encryption function (replace with a real block cipher)
+void encrypt(const char *key, const char *plaintext, char *ciphertext) {
+    // This is a placeholder, replace with a proper block cipher encryption function
+    // In a real implementation, use a secure encryption library like OpenSSL
+    sprintf(ciphertext, "E(%s, %s)", key, plaintext);
+}
+
+// CBC-MAC calculation for a one-block message
+void cbcMacOneBlock(const char *key, const char *message, char *mac) {
+    encrypt(key, message, mac);
+}
+
+// CBC-MAC calculation for a two-block message
+void cbcMacTwoBlocks(const char *key, const char *message, char *mac) {
+    char xorResult[16];
+    char ciphertext[16];
+
+    // Calculate X XOR T
+    for (int i = 0; i < 16; i++) {
+        xorResult[i] = message[i] ^ mac[i];
+    }
+
+    // Calculate E_K(X XOR T)
+    encrypt(key, xorResult, ciphertext);
+
+    // Copy the result to the output
+    for (int i = 0; i < 16; i++) {
+        mac[i] = ciphertext[i];
+    }
+}
+
+int main() {
+    // Example key and one-block message
+    const char key[] = "SecretKey123456";
+    const char message[] = "Hello, CBC-MAC!";
+
+    // Calculate CBC-MAC for a one-block message
+    char macOneBlock[16];
+    cbcMacOneBlock(key, message, macOneBlock);
+
+    // Display the MAC for the one-block message
+    printf("MAC for One-Block Message: ");
+    for (int i = 0; i < 16; i++) {
+        printf("%02x", (unsigned char)macOneBlock[i]);
+    }
+    printf("\n");
+
+    // Calculate CBC-MAC for a two-block message
+    char macTwoBlocks[16];
+    cbcMacTwoBlocks(key, message, macTwoBlocks);
+
+    // Display the MAC for the two-block message
+    printf("MAC for Two-Block Message: ");
+    for (int i = 0; i < 16; i++) {
+        printf("%02x", (unsigned char)macTwoBlocks[i]);
+    }
+    printf("\n");
+
+    return 0;
+}
